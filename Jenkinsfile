@@ -31,6 +31,7 @@ pipeline {
         string(defaultValue: "${env.storageUser}", description: 'Необязательный. Администратор хранилищ  1C. Должен быть одинаковым для всех хранилищ', name: 'storageUser')
         string(defaultValue: "${env.storagePwd}", description: 'Необязательный. Пароль администратора хранилищ 1c', name: 'storagePwd')
 
+        booleanParam(defaultValue: false, description: 'Удалять тестовую базу', name: 'delDestinationSql')
         string(defaultValue: "${env.serverDestinationSql}", description: 'Имя сервера-приемника MS SQL. По умолчанию localhost', name: 'serverDestinationSql')
         string(defaultValue: "${env.sqlDestinationUser}", description: 'Имя администратора сервера-приемника MS SQL.По умолчанию равен sqlUser', name: 'sqlDestinationUser')
         string(defaultValue: "${env.sqlDestinationPwd}", description: 'Пароль администратора-приемника MS SQL. По умолчанию равен sqlPwd', name: 'sqlDestinationPwd')
@@ -76,6 +77,29 @@ pipeline {
                 }
             }
         }
+        stage("Копирование базы") {
+            steps {
+                timestamps {
+                    script {
+                        for (i = 0;  i < templatebasesList.size(); i++) {
+                            templateDb = templatebasesList[i]
+                            storage1cPath = storages1cPathList[i]
+                            testbase = "test_${templateDb}"
+                            testbaseConnString = projectHelpers.getConnString(server1c, testbase, agent1cPort)
+                            backupPath = "temp_${templateDb}_${utils.currentDateStamp()}"
+
+                            //удаляем тесовую базу
+                            if (storage1cPath)  {
+
+                            }
+
+
+                        }
+                    }
+                }
+            }
+        }
+
         /* stage("Запуск дрочева") {
             steps {
                 timestamps {
@@ -204,7 +228,7 @@ pipeline {
     }
 }
 
-
+/*
 def dropDbTask(server1c, server1cPort, serverSql, infobase, admin1cUser, admin1cPwd, sqluser, sqlPwd) {
     return {
         timestamps {
@@ -285,4 +309,4 @@ def updateDbTask(platform1c, infobase, storage1cPath, storageUser, storagePwd, c
             }
         }
     }
-}
+}*/
