@@ -1,3 +1,5 @@
+#!groovy
+// Обновление тестовой базы на основании боевой
 @Library("shared-libraries")
 import io.libs.SqlUtils
 import io.libs.ProjectHelpers
@@ -32,6 +34,9 @@ pipeline {
         string(defaultValue: "${env.storagePwd}", description: 'Необязательный. Пароль администратора хранилищ 1c', name: 'storagePwd')
 
         booleanParam(defaultValue: false, description: 'Удалять тестовую базу', name: 'delDestinationSql')
+        string(defaultValue: "${env.serverDestination1c}", description: 'Имя сервера 1с, по умолчанию server1c', name: 'serverDestination1c')
+        string(defaultValue: "${env.serverDestination1cPort}", description: 'Порт рабочего сервера 1с. По умолчанию 1540. Не путать с портом агента кластера (1541)', name: 'serverDestination1cPort')
+        string(defaultValue: "${env.agentDestination1cPort}", description: 'Порт агента кластера 1с. По умолчанию 1541', name: 'agentDestination1cPort')
         string(defaultValue: "${env.serverDestinationSql}", description: 'Имя сервера-приемника MS SQL. По умолчанию localhost', name: 'serverDestinationSql')
         string(defaultValue: "${env.sqlDestinationUser}", description: 'Имя администратора сервера-приемника MS SQL.По умолчанию равен sqlUser', name: 'sqlDestinationUser')
         string(defaultValue: "${env.sqlDestinationPwd}", description: 'Пароль администратора-приемника MS SQL. По умолчанию равен sqlPwd', name: 'sqlDestinationPwd')
@@ -43,6 +48,7 @@ pipeline {
     options {
         timeout(time: 8, unit: 'HOURS') 
         buildDiscarder(logRotator(numToKeepStr:'10'))
+        timestamps()
     }
     stages {
         stage("Инициализация") {
@@ -61,6 +67,10 @@ pipeline {
                         server1cPort = server1cPort.isEmpty() ? "1540" : server1cPort
                         agent1cPort = agent1cPort.isEmpty() ? "1541" : agent1cPort
                         env.sqlUser = sqlUser.isEmpty() ? "sa" : sqlUser
+
+                        env.serverDestination1c     = serverDestination1c.isEmpty() ? server1c : serverDestination1c
+                        env.serverDestination1cPort = serverDestination1cPort.isEmpty() ? server1cPort : serverDestination1cPort
+                        env.agentDestination1cPort  = env.agentDestination1cPort.isEmpty() ? agent1cPort : agentDestination1cPort
 
                         env.serverDestinationSql    = serverDestinationSql.isEmpty() ? serverSql : serverDestinationSql
                         env.sqlDestinationUser  = sqlDestinationUser.isEmpty() ? sqlUser : sqlDestinationUser
@@ -89,12 +99,51 @@ pipeline {
                             backupPath = "temp_${templateDb}_${utils.currentDateStamp()}"
 
                             //удаляем тесовую базу
-                            if (storage1cPath)  {
+                            if (delDestinationSql)  {
+                                dropDbTasks["dropDbTask_${testbase}"] = dropDbTask(
+                                    serverDestination1c1c, 
+                                    serverDestination1c1cPort, 
+                                    serverDestination1cSql, 
+                                    testbase, 
+                                    admin1cUser, 
+                                    admin1cPwd,
+                                    sqlDestination1cuser,
+                                    sqlDestination1cPwd
+                                )
 
                             }
+                            // Делаем sql бекап эталонной базы, которую будем загружать в тестовую базу
+                            backupTasks["backupTask_${templateDb}"] = backupTask(
+                                serverSql, 
+                                templateDb, 
+                                backupPath,
+                                sqlUser,
+                                sqlPwd
+                            )
+
+                            // Загружаем sql бекап эталонной базы в тестовую
+                            restoreTasks["restoreTask_${testbase}"] = restoreTask(
+                                serverDestinationSql, 
+                                testbase, 
+                                backupPath,
+                                sqlDestinationUser,
+                                sqlDestinationPwd
+                            )
+                            
+                            // Создаем тестовую базу на кластере 1С
+                            createDbTasks["createDbTask_${testbase}"] = createDbTask(
+                                "${serverDestination1c}:${agentDestination1cPort}",
+                                serverDestinationSql,
+                                platform1c,
+                                testbase
+                            )
 
 
                         }
+                        parallel dropDbTasks
+                        parallel backupTasks
+                        parallel restoreTasks
+                        parallel createDbTasks
                     }
                 }
             }
@@ -228,11 +277,11 @@ pipeline {
     }
 }
 
-/*
+
 def dropDbTask(server1c, server1cPort, serverSql, infobase, admin1cUser, admin1cPwd, sqluser, sqlPwd) {
     return {
         timestamps {
-            stage("Удаление ${infobase}") {
+            stage("Удаление базы: ${infobase}") {
                 def projectHelpers = new ProjectHelpers()
                 def utils = new Utils()
 
@@ -241,6 +290,7 @@ def dropDbTask(server1c, server1cPort, serverSql, infobase, admin1cUser, admin1c
         }
     }
 }
+
 
 def createDbTask(server1c, serverSql, platform1c, infobase) {
     return {
@@ -259,7 +309,7 @@ def createDbTask(server1c, serverSql, platform1c, infobase) {
 
 def backupTask(serverSql, infobase, backupPath, sqlUser, sqlPwd) {
     return {
-        stage("sql бекап ${infobase}") {
+        stage("SQL бекап ${infobase}") {
             timestamps {
                 def sqlUtils = new SqlUtils()
 
@@ -269,7 +319,7 @@ def backupTask(serverSql, infobase, backupPath, sqlUser, sqlPwd) {
         }
     }
 }
-
+/*
 def restoreTask(serverSql, infobase, backupPath, sqlUser, sqlPwd) {
     return {
         stage("Востановление ${infobase} бекапа") {
