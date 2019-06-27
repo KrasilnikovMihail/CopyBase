@@ -119,7 +119,7 @@ pipeline {
                                 backupPath,
                                 sqlUser,
                                 sqlPwd
-                            )
+                            )/*
 
                             // Загружаем sql бекап эталонной базы в тестовую
                             restoreTasks["restoreTask_${testbase}"] = restoreTask(
@@ -136,7 +136,7 @@ pipeline {
                                 serverDestinationSql,
                                 platform1c,
                                 testbase
-                            )
+                            )*/
 
 
                         }
