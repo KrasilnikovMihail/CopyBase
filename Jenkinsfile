@@ -103,7 +103,7 @@ pipeline {
                                 dropDbTasks["dropDbTask_${testbase}"] = dropDbTask(
                                     serverDestination1c, 
                                     serverDestination1cPort, 
-                                    serverDestination1cSql, 
+                                    serverDestinationSql, 
                                     testbase, 
                                     admin1cUser, 
                                     admin1cPwd,
