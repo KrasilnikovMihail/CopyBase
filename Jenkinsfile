@@ -311,8 +311,8 @@ def backupTask(serverSql, infobase, backupPath, sqlUser, sqlPwd) {
     return {
         stage("SQL бекап ${infobase}") {
             timestamps {
-                /*
-                def sqlUtils = new SqlUtils()
+                
+                def sqlUtils = new SqlUtils()/*
 
                 sqlUtils.checkDb(serverSql, infobase, sqlUser, sqlPwd)
                 sqlUtils.backupDb(serverSql, infobase, backupPath, sqlUser, sqlPwd)
