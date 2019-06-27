@@ -54,7 +54,7 @@ def unlocking1cBase(connString, admin1cUsr, admin1cPwd) {
         admin1cPwdLine = "--db-pwd ${admin1cPwd}"
     }
 
-    utils.cmd("runner run --execute \"${env.WORKSPACE}/one_script_tools/unlockBase1C.epf\" --command \"-locktype unlock\" ${admin1cUsrLine} ${admin1cPwdLine} --ibconnection=${connString}")
+    utils.cmd("runner run --execute ${env.WORKSPACE}/one_script_tools/unlockBase1C.epf --command \"-locktype unlock\" ${admin1cUsrLine} ${admin1cPwdLine} --ibconnection=${connString}")
 }
 
 def getConnString(server1c, infobase, agent1cPort) {
@@ -103,10 +103,10 @@ def dropDb(server1c, agentPort, serverSql, base, admin1cUser, admin1cPwd, sqluse
         sqlpasswLine = "-sqlPwd ${sqlPwd}"
     }
 
-    //returnCode = utils.cmd("powershell -file \"${env.WORKSPACE}/copy_etalon/drop_db.ps1\" -server1c ${server1c} -agentPort ${agentPort} -serverSql ${serverSql} -infobase ${base} ${admin1cUserLine} ${admin1cPwdLine} ${sqluserLine} ${sqlpasswLine} ${fulldropLine}")
-   // if (returnCode != 0) { 
-   //     error "error when deleting base with COM ${server1c}\\${base}. See logs above fore more information."
-   // }
+    returnCode = utils.cmd("powershell -file ${env.WORKSPACE}/copy_etalon/drop_db.ps1 -server1c ${server1c} -agentPort ${agentPort} -serverSql ${serverSql} -infobase ${base} ${admin1cUserLine} ${admin1cPwdLine} ${sqluserLine} ${sqlpasswLine} ${fulldropLine}")
+    if (returnCode != 0) { 
+        error "error when deleting base with COM ${server1c}\\${base}. See logs above fore more information."
+    }
 }
 
 // Загружает в базу конфигурацию из 1С хранилища. Базу желательно подключить к хранилищу под загружаемым пользователем,

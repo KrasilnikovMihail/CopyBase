@@ -9,7 +9,6 @@ package io.libs;
 //  sqlPwd - Необязательный. пароль админа sql базы
 //
 def checkDb(dbServer, infobase, sqlUser, sqlPwd) {
-    /*
     utils = new Utils()
 
     sqlUserpath = "" 
@@ -27,7 +26,7 @@ def checkDb(dbServer, infobase, sqlUser, sqlPwd) {
     returnCode = utils.cmd("sqlcmd -S ${dbServer} ${sqlUserpath} ${sqlPwdPath} -i \"${env.WORKSPACE}/copy_etalon/error.sql\" -b -v restoreddb =${infobase}");
     if (returnCode != 0) {
         utils.raiseError("Возникла ошибка при при проверке соединения к sql базе ${dbServer}\\${infobase}. Для подробностей смотрите логи")
-    }*/
+    }
 }
 
 // Создает бекап базы по пути указанному в параметре backupPath
@@ -40,7 +39,6 @@ def checkDb(dbServer, infobase, sqlUser, sqlPwd) {
 //  sqlPwd - Необязательный. пароль админа sql базы
 //
 def backupDb(dbServer, infobase, backupPath, sqlUser, sqlPwd) {
-    /*
     utils = new Utils()
 
     sqlUserpath = "" 
@@ -58,7 +56,7 @@ def backupDb(dbServer, infobase, backupPath, sqlUser, sqlPwd) {
     returnCode = utils.cmd("sqlcmd -S ${dbServer} ${sqlUserpath} ${sqlPwdPath} -i \"${env.WORKSPACE}/copy_etalon/backup.sql\" -b -v backupdb =${infobase} -v bakfile=\"${backupPath}\"")
     if (returnCode != 0) {
         utils.raiseError("Возникла ошибки при создании бекапа sql базы ${dbServer}\\${infobase}. Для подробностей смотрите логи")
-    }*/
+    }
 }
 
 // Создает пустую базу на сервере БД
@@ -70,7 +68,7 @@ def backupDb(dbServer, infobase, backupPath, sqlUser, sqlPwd) {
 //  sqlPwd - Необязательный. пароль админа sql базы
 //
 def createEmptyDb(dbServer, infobase, sqlUser, sqlPwd) {
-/*
+
     sqlUserpath = "" 
     if (sqlUser != null && !sqlUser.isEmpty()) {
         sqlUserpath = "-U ${sqlUser}"
@@ -87,7 +85,7 @@ def createEmptyDb(dbServer, infobase, sqlUser, sqlPwd) {
     returnCode = utils.cmd("sqlcmd -S ${dbServer} ${sqlUserpath} ${sqlPwdPath} -i \"${env.WORKSPACE}/copy_etalon/error_create.sql\" -b -v restoreddb =${infobase}")
     if (returnCode != 0) {
         utils.raiseError("Возникла ошибка при создании пустой sql базы на  ${dbServer}\\${infobase}. Для подробностей смотрите логи")
-    }*/
+    }
 }
 
 // Восстанавливает базу из бекапа
@@ -101,7 +99,7 @@ def createEmptyDb(dbServer, infobase, sqlUser, sqlPwd) {
 //  sqlPwd - Необязательный. пароль админа sql базы
 //
 def restoreDb(dbServer, infobase, backupPath, sqlUser, sqlPwd) {
-    /*utils = new Utils()
+    utils = new Utils()
 
     sqlUserpath = "" 
     if (sqlUser != null && !sqlUser.isEmpty()) {
@@ -118,7 +116,7 @@ def restoreDb(dbServer, infobase, backupPath, sqlUser, sqlPwd) {
     returnCode = utils.cmd("sqlcmd -S ${dbServer} ${sqlUserpath} ${sqlPwdPath} -i \"${env.WORKSPACE}/copy_etalon/restore.sql\" -b -v restoreddb =${infobase} -v bakfile=\"${backupPath}\"")
     if (returnCode != 0) {
          utils.raiseError("Возникла ошибка при восстановлении базы из sql бекапа ${dbServer}\\${infobase}. Для подробностей смотрите логи")
-    } */
+    } 
 }
 
 
@@ -129,11 +127,10 @@ def restoreDb(dbServer, infobase, backupPath, sqlUser, sqlPwd) {
 //  backup_path - путь к бекапам
 //
 def clearBackups(backup_path) {
-    /*
     utils = new Utils()
     echo "Deleting file ${backup_path}..."
     returnCode = utils.cmd("oscript ${env.WORKSPACE}/one_script_tools/deleteFile.os -file\"${backup_path}\"")
     if (returnCode != 0) {
         echo "Error when deleting file: ${backup_path}"
-    } */   
+    }    
 }
