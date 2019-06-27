@@ -1,5 +1,3 @@
-#!groovy
-// Обновление тестовой базы на основании боевой
 @Library("shared-libraries")
 import io.libs.SqlUtils
 import io.libs.ProjectHelpers
@@ -12,8 +10,8 @@ def backupTasks = [:]
 def restoreTasks = [:]
 def dropDbTasks = [:]
 def createDbTasks = [:]
-//def runHandlers1cTasks = [:]
-//def updateDbTasks = [:]
+def runHandlers1cTasks = [:]
+def updateDbTasks = [:]
 
 pipeline {
 
