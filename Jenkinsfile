@@ -107,8 +107,8 @@ pipeline {
                                     testbase, 
                                     admin1cUser, 
                                     admin1cPwd,
-                                    sqlDestination1cuser,
-                                    sqlDestination1cPwd
+                                    sqlDestinationuser,
+                                    sqlDestinationPwd
                                 )
 
                             }
