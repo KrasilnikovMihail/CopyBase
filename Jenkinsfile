@@ -133,8 +133,8 @@ pipeline {
                             )*/
                         }
 
-                        parallel dropDbTasks
-                        parallel backupTasks
+                        //parallel dropDbTasks
+                        //parallel backupTasks
                         //parallel restoreTasks
                         //parallel createDbTasks
                         //parallel updateDbTasks
