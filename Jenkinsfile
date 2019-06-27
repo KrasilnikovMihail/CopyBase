@@ -303,7 +303,7 @@ def createDbTask(server1c, serverSql, platform1c, infobase) {
             }
         }
     }
-}
+}*/
 
 def backupTask(serverSql, infobase, backupPath, sqlUser, sqlPwd) {
     return {
@@ -319,7 +319,7 @@ def backupTask(serverSql, infobase, backupPath, sqlUser, sqlPwd) {
         }
     }
 }
-
+/*
 def restoreTask(serverSql, infobase, backupPath, sqlUser, sqlPwd) {
     return {
         stage("Востановление ${infobase} бекапа") {
@@ -332,7 +332,7 @@ def restoreTask(serverSql, infobase, backupPath, sqlUser, sqlPwd) {
         }
     }
 }
-/*
+
 def runHandlers1cTask(infobase, admin1cUser, admin1cPwd, testbaseConnString) {
     return {
         stage("Запуск 1с обработки на ${infobase}") {
