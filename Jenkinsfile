@@ -127,21 +127,21 @@ pipeline {
                                 sqlDestinationUser,
                                 sqlDestinationPwd
                             )
-                            /*
+                            
                             // Создаем тестовую базу на кластере 1С
                             createDbTasks["createDbTask_${testbase}"] = createDbTask(
                                 "${serverDestination1c}:${agentDestination1cPort}",
                                 serverDestinationSql,
                                 platform1c,
                                 testbase
-                            )*/
+                            )
 
 
                         }
                         parallel dropDbTasks
                         parallel backupTasks
                         parallel restoreTasks
-                        //parallel createDbTasks
+                        parallel createDbTasks
                     }
                 }
             }
@@ -289,7 +289,7 @@ def dropDbTask(server1c, server1cPort, serverSql, infobase, admin1cUser, admin1c
     }
 }
 
-/*
+
 def createDbTask(server1c, serverSql, platform1c, infobase) {
     return {
         stage("Создание базы ${infobase}") {
@@ -303,7 +303,7 @@ def createDbTask(server1c, serverSql, platform1c, infobase) {
             }
         }
     }
-}*/
+}
 
 def backupTask(serverSql, infobase, backupPath, sqlUser, sqlPwd) {
     return {
