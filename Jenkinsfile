@@ -143,6 +143,7 @@ pipeline {
                 }
             }
         }
+        /*
         stage("Тестирование ADD") {
             steps {
                 timestamps {
@@ -175,7 +176,7 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
     }   
     post {
         always {
