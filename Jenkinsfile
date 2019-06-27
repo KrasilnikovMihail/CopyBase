@@ -21,7 +21,7 @@ pipeline {
         string(defaultValue: "${env.server1cPort}", description: 'Порт рабочего сервера 1с. По умолчанию 1540. Не путать с портом агента кластера (1541)', name: 'server1cPort')
         string(defaultValue: "${env.agent1cPort}", description: 'Порт агента кластера 1с. По умолчанию 1541', name: 'agent1cPort')
         string(defaultValue: "${env.platform1c}", description: 'Версия платформы 1с, например 8.3.12.1685. По умолчанию будет использована последня версия среди установленных', name: 'platform1c')
-        string(defaultValue: "${env.serverSql}", description: 'Имя сервера MS SQL. По умолчанию localhost', name: 'serverSql')
+        string(defaultValue: "${env.serverSql}", description: 'Имя сервера-источника MS SQL. По умолчанию localhost', name: 'serverSql')        
         string(defaultValue: "${env.admin1cUser}", description: 'Имя администратора с правом открытия вншних обработок (!) для базы тестирования 1с Должен быть одинаковым для всех баз', name: 'admin1cUser')
         string(defaultValue: "${env.admin1cPwd}", description: 'Пароль администратора базы тестирования 1C. Должен быть одинаковым для всех баз', name: 'admin1cPwd')
         string(defaultValue: "${env.sqlUser}", description: 'Имя администратора сервера MS SQL. Если пустой, то используется доменная  авторизация', name: 'sqlUser')
@@ -30,6 +30,14 @@ pipeline {
         string(defaultValue: "${env.storages1cPath}", description: 'Необязательный. Пути к хранилищам 1С для обновления копий баз тестирования через запятую. Число хранилищ (если указаны), должно соответствовать числу баз тестирования. Например D:/temp/storage1c/erp,D:/temp/storage1c/upp', name: 'storages1cPath')
         string(defaultValue: "${env.storageUser}", description: 'Необязательный. Администратор хранилищ  1C. Должен быть одинаковым для всех хранилищ', name: 'storageUser')
         string(defaultValue: "${env.storagePwd}", description: 'Необязательный. Пароль администратора хранилищ 1c', name: 'storagePwd')
+
+        booleanParam(defaultValue: false, description: 'Удалять тестовую базу', name: 'delDestinationSql')
+        string(defaultValue: "${env.serverDestination1c}", description: 'Имя сервера 1с, по умолчанию server1c', name: 'serverDestination1c')
+        string(defaultValue: "${env.serverDestination1cPort}", description: 'Порт рабочего сервера 1с. По умолчанию 1540. Не путать с портом агента кластера (1541)', name: 'serverDestination1cPort')
+        string(defaultValue: "${env.agentDestination1cPort}", description: 'Порт агента кластера 1с. По умолчанию 1541', name: 'agentDestination1cPort')
+        string(defaultValue: "${env.serverDestinationSql}", description: 'Имя сервера-приемника MS SQL. По умолчанию localhost', name: 'serverDestinationSql')
+        string(defaultValue: "${env.sqlDestinationUser}", description: 'Имя администратора сервера-приемника MS SQL.По умолчанию равен sqlUser', name: 'sqlDestinationUser')
+        string(defaultValue: "${env.sqlDestinationPwd}", description: 'Пароль администратора-приемника MS SQL. По умолчанию равен sqlPwd', name: 'sqlDestinationPwd')
     }
 
     agent {
@@ -38,9 +46,10 @@ pipeline {
     options {
         timeout(time: 8, unit: 'HOURS') 
         buildDiscarder(logRotator(numToKeepStr:'10'))
+        timestamps()
     }
     stages {
-        stage("Подготовка") {
+        stage("Инициализация") {
             steps {
                 timestamps {
                     script {
@@ -56,6 +65,16 @@ pipeline {
                         server1cPort = server1cPort.isEmpty() ? "1540" : server1cPort
                         agent1cPort = agent1cPort.isEmpty() ? "1541" : agent1cPort
                         env.sqlUser = sqlUser.isEmpty() ? "sa" : sqlUser
+
+                        env.serverDestination1c     = serverDestination1c.isEmpty() ? server1c : serverDestination1c
+                        env.serverDestination1cPort = serverDestination1cPort.isEmpty() ? server1cPort : serverDestination1cPort
+                        env.agentDestination1cPort  = env.agentDestination1cPort.isEmpty() ? agent1cPort : agentDestination1cPort
+
+                        env.serverDestinationSql    = serverDestinationSql.isEmpty() ? serverSql : serverDestinationSql
+                        env.sqlDestinationUser  = sqlDestinationUser.isEmpty() ? sqlUser : sqlDestinationUser
+                        env.sqlDestinationPwd   =  sqlDestinationPwd.isEmpty() ? sqlPwd : sqlDestinationPwd
+
+
                         testbase = null
 
                         // создаем пустые каталоги
@@ -66,7 +85,69 @@ pipeline {
                 }
             }
         }
-        stage("Запуск") {
+        stage("Копирование базы") {
+            steps {
+                timestamps {
+                    script {
+                        for (i = 0;  i < templatebasesList.size(); i++) {
+                            templateDb = templatebasesList[i]
+                            storage1cPath = storages1cPathList[i]
+                            testbase = "test_${templateDb}"
+                            testbaseConnString = projectHelpers.getConnString(server1c, testbase, agent1cPort)
+                            backupPath = "temp_${templateDb}_${utils.currentDateStamp()}"
+
+                            //удаляем тесовую базу
+                            if (delDestinationSql)  {
+                                dropDbTasks["dropDbTask_${testbase}"] = dropDbTask(
+                                    serverDestination1c, 
+                                    serverDestination1cPort, 
+                                    serverDestinationSql, 
+                                    testbase, 
+                                    admin1cUser, 
+                                    admin1cPwd,
+                                    sqlDestinationuser,
+                                    sqlDestinationPwd
+                                )
+
+                            }
+                            // Делаем sql бекап эталонной базы, которую будем загружать в тестовую базу
+                            backupTasks["backupTask_${templateDb}"] = backupTask(
+                                serverSql, 
+                                templateDb, 
+                                backupPath,
+                                sqlUser,
+                                sqlPwd
+                            )/*
+
+                            // Загружаем sql бекап эталонной базы в тестовую
+                            restoreTasks["restoreTask_${testbase}"] = restoreTask(
+                                serverDestinationSql, 
+                                testbase, 
+                                backupPath,
+                                sqlDestinationUser,
+                                sqlDestinationPwd
+                            )
+                            
+                            // Создаем тестовую базу на кластере 1С
+                            createDbTasks["createDbTask_${testbase}"] = createDbTask(
+                                "${serverDestination1c}:${agentDestination1cPort}",
+                                serverDestinationSql,
+                                platform1c,
+                                testbase
+                            )*/
+
+
+                        }
+                        parallel dropDbTasks
+                        parallel backupTasks
+                        //parallel restoreTasks
+                        //parallel createDbTasks
+                    }
+                }
+            }
+        }
+
+        /* stage("Запуск дрочева") {
             steps {
                 timestamps {
                     script {
@@ -76,7 +157,7 @@ pipeline {
                             storage1cPath = storages1cPathList[i]
                             testbase = "test_${templateDb}"
                             testbaseConnString = projectHelpers.getConnString(server1c, testbase, agent1cPort)
-                            //backupPath = "${env.WORKSPACE}/build/temp_${templateDb}_${utils.currentDateStamp()}"
+                            //#backupPath = "${env.WORKSPACE}/build/temp_${templateDb}_${utils.currentDateStamp()}"
                             backupPath = "temp_${templateDb}_${utils.currentDateStamp()}"
 
                             // 1. Удаляем тестовую базу из кластера (если он там была) и очищаем клиентский кеш 1с
@@ -98,7 +179,6 @@ pipeline {
                                 sqlUser,
                                 sqlPwd
                             )
-                            /*
                             // 3. Загружаем sql бекап эталонной базы в тестовую
                             restoreTasks["restoreTask_${testbase}"] = restoreTask(
                                 serverSql, 
@@ -131,20 +211,19 @@ pipeline {
                                 admin1cUser, 
                                 admin1cPwd,
                                 testbaseConnString
-                            )*/
+                            )
                         }
 
                         parallel dropDbTasks
                         parallel backupTasks
-                        //parallel restoreTasks
-                        //parallel createDbTasks
-                        //parallel updateDbTasks
-                        //parallel runHandlers1cTasks
+                        parallel restoreTasks
+                        parallel createDbTasks
+                        parallel updateDbTasks
+                        parallel runHandlers1cTasks
                     }
                 }
             }
         }
-        /*
         stage("Тестирование ADD") {
             steps {
                 timestamps {
@@ -177,7 +256,7 @@ pipeline {
                     }
                 }
             }
-        }*/
+        } */
     }   
     post {
         always {
@@ -200,7 +279,7 @@ pipeline {
 def dropDbTask(server1c, server1cPort, serverSql, infobase, admin1cUser, admin1cPwd, sqluser, sqlPwd) {
     return {
         timestamps {
-            stage("Удаление ${infobase}") {
+            stage("Удаление базы: ${infobase}") {
                 def projectHelpers = new ProjectHelpers()
                 def utils = new Utils()
 
@@ -210,6 +289,7 @@ def dropDbTask(server1c, server1cPort, serverSql, infobase, admin1cUser, admin1c
     }
 }
 
+/*
 def createDbTask(server1c, serverSql, platform1c, infobase) {
     return {
         stage("Создание базы ${infobase}") {
@@ -223,21 +303,23 @@ def createDbTask(server1c, serverSql, platform1c, infobase) {
             }
         }
     }
-}
+}*/
 
 def backupTask(serverSql, infobase, backupPath, sqlUser, sqlPwd) {
     return {
-        stage("sql бекап ${infobase}") {
+        stage("SQL бекап ${infobase}") {
             timestamps {
+                
                 def sqlUtils = new SqlUtils()
 
                 sqlUtils.checkDb(serverSql, infobase, sqlUser, sqlPwd)
                 sqlUtils.backupDb(serverSql, infobase, backupPath, sqlUser, sqlPwd)
+                
             }
         }
     }
 }
-
+/*
 def restoreTask(serverSql, infobase, backupPath, sqlUser, sqlPwd) {
     return {
         stage("Востановление ${infobase} бекапа") {
@@ -277,4 +359,4 @@ def updateDbTask(platform1c, infobase, storage1cPath, storageUser, storagePwd, c
             }
         }
     }
-}
+}*/
