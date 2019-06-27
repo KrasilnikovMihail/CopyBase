@@ -117,7 +117,7 @@ pipeline {
                                 backupPath,
                                 sqlUser,
                                 sqlPwd
-                            )/*
+                            )
 
                             // Загружаем sql бекап эталонной базы в тестовую
                             restoreTasks["restoreTask_${testbase}"] = restoreTask(
@@ -127,7 +127,7 @@ pipeline {
                                 sqlDestinationUser,
                                 sqlDestinationPwd
                             )
-                            
+                            /*
                             // Создаем тестовую базу на кластере 1С
                             createDbTasks["createDbTask_${testbase}"] = createDbTask(
                                 "${serverDestination1c}:${agentDestination1cPort}",
