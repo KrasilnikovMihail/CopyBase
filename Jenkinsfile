@@ -140,8 +140,8 @@ pipeline {
                         }
                         parallel dropDbTasks
                         parallel backupTasks
-                        parallel restoreTasks
-                        parallel createDbTasks
+                        //parallel restoreTasks
+                        //parallel createDbTasks
                     }
                 }
             }
@@ -289,7 +289,7 @@ def dropDbTask(server1c, server1cPort, serverSql, infobase, admin1cUser, admin1c
     }
 }
 
-
+/*
 def createDbTask(server1c, serverSql, platform1c, infobase) {
     return {
         stage("Создание базы ${infobase}") {
@@ -312,9 +312,9 @@ def backupTask(serverSql, infobase, backupPath, sqlUser, sqlPwd) {
                 
                 def sqlUtils = new SqlUtils()
 
-                sqlUtils.checkDb(serverSql, infobase, sqlUser, sqlPwd)/*
+                sqlUtils.checkDb(serverSql, infobase, sqlUser, sqlPwd)
                 sqlUtils.backupDb(serverSql, infobase, backupPath, sqlUser, sqlPwd)
-                */
+                
             }
         }
     }
