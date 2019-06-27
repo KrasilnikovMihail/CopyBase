@@ -8,10 +8,10 @@ import io.libs.Utils
 def sqlUtils = new SqlUtils()
 def utils = new Utils()
 def projectHelpers = new ProjectHelpers()
-//def backupTasks = [:]
-//def restoreTasks = [:]
-//def dropDbTasks = [:]
-//def createDbTasks = [:]
+def backupTasks = [:]
+def restoreTasks = [:]
+def dropDbTasks = [:]
+def createDbTasks = [:]
 //def runHandlers1cTasks = [:]
 //def updateDbTasks = [:]
 
