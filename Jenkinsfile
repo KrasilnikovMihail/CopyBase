@@ -101,8 +101,8 @@ pipeline {
                             //удаляем тесовую базу
                             if (delDestinationSql)  {
                                 dropDbTasks["dropDbTask_${testbase}"] = dropDbTask(
-                                    serverDestination1c1c, 
-                                    serverDestination1c1cPort, 
+                                    serverDestination1c, 
+                                    serverDestination1cPort, 
                                     serverDestination1cSql, 
                                     testbase, 
                                     admin1cUser, 
