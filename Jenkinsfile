@@ -136,7 +136,6 @@ pipeline {
                                 testbase,
                                 sqlDestinationuser,
                                 sqlDestinationPwd
-
                             )
 
 
@@ -299,7 +298,7 @@ def createDbTask(server1c, serverSql, platform1c, infobase, sqlUser, sqlPwd) {
             timestamps {
                 def projectHelpers = new ProjectHelpers()
                 try {
-                    projectHelpers.createDb(platform1c, server1c, serversql, infobase, null, false,sqlUser, sqlPwd)
+                    projectHelpers.createDb(platform1c, server1c, serversql, infobase, null, false, sqlUser, sqlPwd)
                 } catch (excp) {
                     echo "Error happened when creating base ${infobase}. Probably base already exists in the ibases.v8i list. Skip the error"
                 }
