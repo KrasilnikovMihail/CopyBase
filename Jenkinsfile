@@ -298,7 +298,7 @@ def createDbTask(server1c, serverSql, platform1c, infobase, sqluser, sqlPwd) {
             timestamps {
                 def projectHelpers = new ProjectHelpers()
                 try {
-                    projectHelpers.createDb(platform1c, server1c, serversql, infobase, null, false)
+                    projectHelpers.createDb(platform1c, server1c, serversql, infobase, null, false, sqluser, sqlPwd)
                 } catch (excp) {
                     echo "Error happened when creating base ${infobase}. Probably base already exists in the ibases.v8i list. Skip the error"
                 }
