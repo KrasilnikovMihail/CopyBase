@@ -41,7 +41,7 @@ def createDb(platform, server1c, serversql, base, cfdt, isras, sqluser="aaa", sq
 
     //*
     //#returnCode = utils.cmd("oscript one_script_tools/dbcreator.os ${platformLine} -server1c ${server1c} -serversql ${serversql} -base ${base} ${cfdtpath} ${israspath}")
-    returnCode = utils.cmd("oscript one_script_tools/dbcreator.os ${platformLine} -server1c ${server1c} -serversql ${serversql} -base ${base} ${cfdtpath} ${israspath} ${sqluserLine} ${sqlpasswLine}")
+    returnCode = utils.cmd("oscript one_script_tools/dbcreator.ossss ${platformLine} -server1c ${server1c} -serversql ${serversql} -base ${base} ${cfdtpath} ${israspath} ${sqluserLine} ${sqlpasswLine}")
     if (returnCode != 0) {
         utils.raiseError("Возникла ошибка при создании базы ${base} в кластере ${serversql}")
     }
