@@ -31,7 +31,7 @@ pipeline {
         string(defaultValue: "${env.storageUser}", description: 'Необязательный. Администратор хранилищ  1C. Должен быть одинаковым для всех хранилищ', name: 'storageUser')
         string(defaultValue: "${env.storagePwd}", description: 'Необязательный. Пароль администратора хранилищ 1c', name: 'storagePwd')
 
-        booleanParam(defaultValue: ${env.delDestinationSql}, description: 'Удалять тестовую базу', name: 'delDestinationSql')
+        booleanParam(defaultValue: "${env.delDestinationSql}", description: 'Удалять тестовую базу', name: 'delDestinationSql')
         string(defaultValue: "${env.serverDestination1c}", description: 'Имя сервера 1с, по умолчанию server1c', name: 'serverDestination1c')
         string(defaultValue: "${env.serverDestination1cPort}", description: 'Порт рабочего сервера 1с. По умолчанию 1540. Не путать с портом агента кластера (1541)', name: 'serverDestination1cPort')
         string(defaultValue: "${env.agentDestination1cPort}", description: 'Порт агента кластера 1с. По умолчанию 1541', name: 'agentDestination1cPort')
