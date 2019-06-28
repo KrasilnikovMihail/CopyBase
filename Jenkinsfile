@@ -133,9 +133,7 @@ pipeline {
                                 "${serverDestination1c}:${agentDestination1cPort}",
                                 serverDestinationSql,
                                 platform1c,
-                                testbase,
-                                sqlDestinationuser,
-                                sqlDestinationPwd
+                                testbase
                             )
 
 
@@ -292,13 +290,13 @@ def dropDbTask(server1c, server1cPort, serverSql, infobase, admin1cUser, admin1c
 }
 
 
-def createDbTask(server1c, serverSql, platform1c, infobase, sqlUser, sqlPwd) {
+def createDbTask(server1c, serverSql, platform1c, infobase) {
     return {
         stage("Создание базы ${infobase}") {
             timestamps {
                 def projectHelpers = new ProjectHelpers()
                 try {
-                    projectHelpers.createDb(platform1c, server1c, serversql, infobase, null, false, sqlUser, sqlPwd)
+                    projectHelpers.createDb(platform1c, server1c, serversql, infobase, null, false)
                 } catch (excp) {
                     echo "Error happened when creating base ${infobase}. Probably base already exists in the ibases.v8i list. Skip the error"
                 }
