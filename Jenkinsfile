@@ -74,7 +74,7 @@ pipeline {
                         env.sqlDestinationUser  = sqlDestinationUser.isEmpty() ? sqlUser : sqlDestinationUser
                         env.sqlDestinationPwd   =  sqlDestinationPwd.isEmpty() ? sqlPwd : sqlDestinationPwd
                         
-                        delDestinationSql = env.delDestinationSql.isEmpty() ? false: delDestinationSql
+                        delDestinationSql = false
 
 
                         testbase = null
