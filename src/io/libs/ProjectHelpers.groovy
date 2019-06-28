@@ -36,7 +36,7 @@ def createDb(platform, server1c, serversql, base, cfdt, isras, sqluser="", sqlPw
 
     sqlpasswLine = "";
     if (sqlPwd != null && !sqlPwd.isEmpty()) {
-        sqlpasswLine = "-sqlPwd ${sqlPwd}"
+        sqlpasswLine = "-sqlpassw ${sqlPwd}"
     }
 
     //*
